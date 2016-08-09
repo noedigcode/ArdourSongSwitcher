@@ -182,6 +182,7 @@ for song in songs:
 control = Process(mididingsProcess) >> Filter(PROGRAM) >> SceneSwitch()
 
 config(backend=backend,
+       client_name='ardourSongSwitcher',
        in_ports=[('in',autoconnect)])
 
 # -----------------------------------------------------------------------------

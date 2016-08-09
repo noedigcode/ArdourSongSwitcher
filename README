@@ -3,24 +3,94 @@ Gideon van der Kolf, 2016
 
 Switch songs in an Ardour session by (un)muting tracks and jumping to location markers.
 
-ArdourSongSwitcher allows switching between multilpe songs, each with associated Ardour tracks (e.g. clicktracks and backtracks), with different tempos, in a single Ardour project, using a midi controller.
+
+Overview
+========
+
+ArdourSongSwitcher allows switching between multilpe songs, each with associated Ardour tracks (e.g. clicktracks and backtracks), with different tempos, in a single Ardour project, using a MIDI controller.
 
 ArdourSongSwitcher is a Python script which allows the user to define songs and other settings by editing the file. The script uses OSC to communicate with Ardour in order to switch songs. Mididings is used to receive MIDI input and switch songs accordingly.
 
-Firstly, the Ardour project needs to be set up appropriately. Typically, the user will have multiple songs, each of which has a clicktrack and a backtrack. Each track should be on a separate Ardour track. For instance, one could have the following tracks in an Ardour project:
-Track1: Song1 clicktrack
-Track2: Song1 backtrack
-Track3: Song2 clicktrack
-Track4: Song2 backtrack
-etc.
+
+Setting Up An Ardour Project
+============================
+
+Firstly, the Ardour project needs to be set up appropriately. The user may have multiple songs, each of which has a clicktrack and a backtrack. Each track should be on a separate Ardour track. For instance, one could have the following tracks in an Ardour project:
+
+Track1: [Song1 clicktrack]
+Track2: [Song1 backtrack ]
+Track3: [Song2 clicktrack]
+Track4: [Song2 backtrack ]
+
 ArdourSongSwitcher switches between songs by muting all tracks and only unmuting those tracks associated with the chosen song. I.e. for Song1, tracks 1 and 2 will be unmuted while tracks 3 and 4 will be muted.
 
 Sometimes it's necessary to have different songs at different tempos. Say each song's clicktrack is a MIDI track and Song1 needs to be at 120BPM while Song2 needs to be at 180BPM. Ardour doesn't have a single global tempo setting, but in stead allows tempo markers to be placed along the timeline to set new tempos. To make use of this, songs with different tempos need to be at different locations in the timeline. In this case, all the tracks of Song1 could be put at the start of the timeline, and all tracks of Song2 moved to after the end of Song1. Then, a 120BPM tempo marker is placed at the start of Song1 and a 180BPM tempo marker is placed where Song2 starts. Additionally, location markers should now be placed at the start of each song. ArdourSongSwitcher will jump to a location marker associated with a song when switching to that song.
 For instance, the tracks would now be set up as follows:
-Tempo Markers:    120BPM
-Location Markers: 
-Track1: [Song1 clicktrack]
-Track2: [Song1 backtrack ]
-Track3:                    [Song2 clicktrack]
-Track4:                    [Song2 backtrack ]
+
+   Tempo Markers: \/ 120BPM          \/ 180BPM
+Location Markers: \/ marker0         \/ marker1
+          Track1: [Song1 clicktrack]
+          Track2: [Song1 backtrack ]
+          Track3:                    [Song2 clicktrack]
+          Track4:                    [Song2 backtrack ]
+
+When selecting Song1, tracks 1 and 2 are unmuted and tracks 3 and 4 are muted. Ardour's playback location is set to marker0 at the start of Song1. When playback is started, Song1's clicktrack and backtrack is heard at a tempo of 120BPM. There is no danger of accidentally hearing Song2 if playback continues past the end of Song1 since tracks 3 and 4 have been muted.
+When selecting Song2, tracks 1 and 2 are muted and tracks 3 and 4 are unmuted. Ardour's playback location is set to marker1 at the start of Song 2. When playback is started now, Song2's tracks are heard and the tempo is 180BPM.
+
+
+Configuring The Script
+======================
+
+Set numtracks to the number of tracks in the Ardour project, excluding the Master track.
+
+The ignore list contains the track numbers (starting from 1; excluding Master; busses also count as tracks) that need to be ignored, i.e. not muted/unmuted when switching songs.
+For example, one could set up a bus to which receives the audio of all the backtracks and one for the clicktracks. To prevent these two busses from being muted, add them to the ignore list.
+
+The songs list defines all the song. Each item in the list is in the form:
+( songName, marker, listOfTracks )
+For our example above, we would have:
+
+songs = [
+   ( 'Song1', 0, [1,2] ),
+   ( 'Song2', 1, [3,4] )
+]
+
+Note that multiple markers at the same location can not be distinguished. Markers are not identified by name but are switched to by sending a next_marker OSC message the appropriate number of times. 0 (zero) is always at the start of the timeline. The next marker after the timeline start will be marker 1, and so forth. It is probably a good idea to name markers properly for your own sake to avoid confusion.
+
+The autoconnect variable allows you to specify a MIDI port in the form client:port, to which the script will automatically connect to on startup. This could be a subset of the port name. For example, an ALSA MIDI client might be named "32:USB MIDI Interface" with one port "0:USB MIDI Interface MIDI 1". The client ID 32 might change the next time you boot your computer so it is useful to leave it out. Thus, to connect to this client, the following would be sufficient:
+autoconnect='USB MIDI Interface:0'
+
+The rest of the configuration is pretty self-explanitory.
+
+
+Using The Script
+================
+
+In Ardour, enable OSC by going to Edit->Preferences, Control Surfaces tab, and enabling "Open Sound Control (OSC)".
+
+Run the script with Python (e.g. in a terminal: python ardourSongSwitcher.py)
+
+The script should display some info and then "switching to scene 1: " and the first song name.
+
+Connect the input MIDI port to an appropriate client. Send the MIDI CC messages specified in the script to perform the corresponding action. Program change messages can also be sent to change songs.
+
+In order to visualise the song list, the Livedings application can be used (part of Mididings). However, note that songs can't be changed by selecting one in the Livedings GUI (yet).
+
+
+Requirements
+============
+
+ardourSongSwitcher requires the following:
+
+Ardour 4
+Python liblo (OSC library) http://das.nasophon.de/pyliblo/
+Mididings http://das.nasophon.de/mididings/
+
+
+
+
+
+
+
+
 
