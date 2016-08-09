@@ -77,6 +77,16 @@ Connect the input MIDI port to an appropriate client. Send the MIDI CC messages 
 In order to visualise the song list, the livedings application can be used (part of Mididings). (The -T option for livedings looks nice.) However, note that songs can't be changed by selecting one in the livedings GUI (yet).
 
 
+Additional Notes
+================
+
+By default in Ardour, MIDI is tied to bars and beats, but not other objects like audio and markers. Thus, when changing a the tempo of a tempo marker, all successive MIDI objects will be moved later or earlier accordingly, but not audio or markers. For this reason, if you are working with different tempos, it is important to set the following property for all audio objects and markers:
+
+Glue to Bars and Beats
+
+For audio objects, found in Region->Position and for markers simply in their right-click menu.
+
+
 Requirements
 ============
 
