@@ -1,0 +1,26 @@
+ArdourSongSwitcher
+Gideon van der Kolf, 2016
+
+Switch songs in an Ardour session by (un)muting tracks and jumping to location markers.
+
+ArdourSongSwitcher allows switching between multilpe songs, each with associated Ardour tracks (e.g. clicktracks and backtracks), with different tempos, in a single Ardour project, using a midi controller.
+
+ArdourSongSwitcher is a Python script which allows the user to define songs and other settings by editing the file. The script uses OSC to communicate with Ardour in order to switch songs. Mididings is used to receive MIDI input and switch songs accordingly.
+
+Firstly, the Ardour project needs to be set up appropriately. Typically, the user will have multiple songs, each of which has a clicktrack and a backtrack. Each track should be on a separate Ardour track. For instance, one could have the following tracks in an Ardour project:
+Track1: Song1 clicktrack
+Track2: Song1 backtrack
+Track3: Song2 clicktrack
+Track4: Song2 backtrack
+etc.
+ArdourSongSwitcher switches between songs by muting all tracks and only unmuting those tracks associated with the chosen song. I.e. for Song1, tracks 1 and 2 will be unmuted while tracks 3 and 4 will be muted.
+
+Sometimes it's necessary to have different songs at different tempos. Say each song's clicktrack is a MIDI track and Song1 needs to be at 120BPM while Song2 needs to be at 180BPM. Ardour doesn't have a single global tempo setting, but in stead allows tempo markers to be placed along the timeline to set new tempos. To make use of this, songs with different tempos need to be at different locations in the timeline. In this case, all the tracks of Song1 could be put at the start of the timeline, and all tracks of Song2 moved to after the end of Song1. Then, a 120BPM tempo marker is placed at the start of Song1 and a 180BPM tempo marker is placed where Song2 starts. Additionally, location markers should now be placed at the start of each song. ArdourSongSwitcher will jump to a location marker associated with a song when switching to that song.
+For instance, the tracks would now be set up as follows:
+Tempo Markers:    120BPM
+Location Markers: 
+Track1: [Song1 clicktrack]
+Track2: [Song1 backtrack ]
+Track3:                    [Song2 clicktrack]
+Track4:                    [Song2 backtrack ]
+
