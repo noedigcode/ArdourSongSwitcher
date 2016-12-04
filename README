@@ -90,7 +90,7 @@ For audio objects, found in Region->Position and for markers simply in their rig
 Requirements
 ============
 
-Ardour 4
+Ardour 4 or Ardour 5 (Tested with 5.5)
 Python liblo (OSC library) http://das.nasophon.de/pyliblo/
 Mididings http://das.nasophon.de/mididings/
 
