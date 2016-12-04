@@ -2,6 +2,9 @@
 # User edit section
 #==============================================================================
 
+# Ardour version, either 4 or 5.
+ardourversion = 5
+
 # Number of tracks excluding Master
 numtracks = 9
 
@@ -58,18 +61,28 @@ for i in ignore:
 # -----------------------------------------------------------------------------
 # Mute specified track. 1=mute, 0=unmute
 def ardour_muteTrack(track, mute):
-    s(t,'/ardour/routes/mute',track,mute)
+    if ardourversion==4:
+        s(t,'/ardour/routes/mute',track,mute)
+    elif ardourversion==5:
+        print('   muteTrack: %d, %d'%(track,mute))
+        s(t,'/strip/mute',track,mute)
 
 # -----------------------------------------------------------------------------
 # Move Ardour playhead to specified marker, where zero is the start and nonzero
 # markers must be after the start.
 def ardour_gotoMarker(m):
     # Go to start, then next_marker until at the desired marker
-    s(t,'/ardour/goto_start')
+    if ardourversion==4:
+        s(t,'/ardour/goto_start')
+    elif ardourversion==5:
+        s(t,'/goto_start')
     time.sleep(0.1) # Seems Ardour doesn't always handle messages in quick succession as expected
     i=m
     while (i>0):
-        s(t,'/ardour/next_marker')
+        if ardourversion==4:
+            s(t,'/ardour/next_marker')
+        elif ardourversion==5:
+            s(t,'/next_marker')
         i -= 1
         time.sleep(0.1)
 
@@ -90,13 +103,22 @@ def ardour_switchSong(s):
 
 # -----------------------------------------------------------------------------
 def ardour_play():
-    s(t,'/ardour/transport_play')
+    if ardourversion==4:
+        s(t,'/ardour/transport_play')
+    elif ardourversion==5:
+        s(t,'/transport_play')
 
 def ardour_stop():
-    s(t,'/ardour/transport_stop')
+    if ardourversion==4:
+        s(t,'/ardour/transport_stop')
+    elif ardourversion==5:
+        s(t,'/transport_stop')
     
 def ardour_playPause():
-    s(t,'/ardour/toggle_roll')
+    if ardourversion==4:
+        s(t,'/ardour/toggle_roll')
+    elif ardourversion==5:
+        s(t,'/toggle_roll')
 
 # -----------------------------------------------------------------------------
 # Mididngs process function
